@@ -1,6 +1,6 @@
-# AI RAG DocSearch Knowledge Engine
+# NLP DOC Indexing
 
-AI RAG DocSearch Knowledge Engine is the second phase of the document search project. The first repository built the traditional Lucene foundation with batch indexing, streaming updates, physical shards, checkpointing, and BM25 search. This repository focuses on foundation models and NLP: semantic chunking, embeddings, hybrid retrieval, entity extraction, keyphrase extraction, document classification, risk labeling, relation extraction, summarization, citation grounded answer generation, and knowledge graph construction.
+NLP DOC Indexing is the second phase of the document search project. The first repository built the traditional Lucene foundation with batch indexing, streaming updates, physical shards, checkpointing, and BM25 search. This repository focuses on foundation models and NLP for document indexing: semantic chunking, embeddings, hybrid retrieval, entity extraction, keyphrase extraction, document classification, risk labeling, relation extraction, summarization, citation grounded answer generation, and knowledge graph construction.
 
 The first version is intentionally runnable without external model APIs. It uses deterministic local hash embeddings so the architecture, tests, and demo work on any machine. The model interfaces are designed so a production embedding model, GPU backed transformer, reranker, or managed LLM can replace the local implementation later.
 

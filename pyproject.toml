@@ -1,7 +1,7 @@
 [project]
-name = "ai-rag-docsearch-knowledge-engine"
+name = "nlp-doc-indexing"
 version = "0.1.0"
-description = "AI document retrieval engine with chunking, embeddings, hybrid search, RAG citations, and knowledge graph extraction."
+description = "Foundation model and NLP document indexing engine with chunking, enrichment, hybrid retrieval, RAG citations, and knowledge graph extraction."
 requires-python = ">=3.9"
 authors = [
   { name = "Srimathi Ravisankar" }
