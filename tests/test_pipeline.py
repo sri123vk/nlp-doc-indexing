@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from aidoc.evaluation.evaluator import EvaluationQuestion, RetrievalEvaluator
 from aidoc.pipeline import DocumentIntelligencePipeline
 
 
@@ -31,6 +32,16 @@ class PipelineTest(unittest.TestCase):
             self.assertGreaterEqual(summary["knowledge_graph_triples"], 1)
             self.assertTrue(answer["citations"])
             self.assertIn("remediation", answer["answer"].lower())
+
+            evaluation = RetrievalEvaluator(pipeline).evaluate([
+                EvaluationQuestion(
+                    question="What requires remediation?",
+                    expected_terms=["remediation"],
+                    expected_document_hint="policy",
+                )
+            ])
+            self.assertEqual(evaluation.questions, 1)
+            self.assertEqual(evaluation.recall_at_k, 1.0)
 
 
 if __name__ == "__main__":

@@ -16,6 +16,22 @@ This repository is the AI intelligence layer. It assumes raw text is available f
 | Hybrid retriever | Combines lexical and semantic evidence |
 | Knowledge graph extractor | Converts unstructured text into relationship triples |
 | Answer builder | Produces responses with citations |
+| Evaluation harness | Measures retrieval recall, citation hit rate, matched terms, and average score |
+
+## Implemented Local Prototype
+
+The local prototype includes document loading, semantic chunking, deterministic foundation model fallback, NLP enrichment, hybrid retrieval, citation answer generation, knowledge graph triple extraction, and evaluation.
+
+Verified corpus output:
+
+```text
+documents: 5
+chunks: 305
+enriched_chunks: 305
+knowledge_graph_triples: 3976
+entities: 2566
+relations: 800
+```
 
 ## Production Upgrade Path
 

@@ -1,195 +1,270 @@
 # NLP DOC Indexing
 
-NLP DOC Indexing is the second phase of the document search project. The first repository built the traditional Lucene foundation with batch indexing, streaming updates, physical shards, checkpointing, and BM25 search. This repository focuses on foundation models and NLP for document indexing: semantic chunking, embeddings, hybrid retrieval, entity extraction, keyphrase extraction, document classification, risk labeling, relation extraction, summarization, citation grounded answer generation, and knowledge graph construction.
+NLP DOC Indexing is a foundation model and NLP based document intelligence engine. It is the second project in a two part document search system. The first project, Lucene Scalable DocSearch Index Engine, handles traditional inverted indexing, BM25 search, sharding, streaming updates, and metadata checkpoints. This project handles the AI layer: semantic chunking, NLP enrichment, hybrid retrieval, citation grounded answers, knowledge graph construction, and retrieval evaluation.
 
-The first version is intentionally runnable without external model APIs. It uses deterministic local hash embeddings so the architecture, tests, and demo work on any machine. The model interfaces are designed so a production embedding model, GPU backed transformer, reranker, or managed LLM can replace the local implementation later.
+The repository is intentionally runnable without paid APIs or external model servers. It ships with deterministic local model backends so the full pipeline can be tested on any machine. The architecture still follows the same interface boundaries used by production foundation model systems, so OpenAI, Amazon Bedrock, Hugging Face, vLLM, Ollama, or GPU backed sentence transformer backends can replace the local implementations later.
 
-## 1. Research Goal
+## 1. Completed System
 
-The central question is:
+The project is no longer only a RAG sketch. It now contains a complete local document intelligence pipeline:
 
-How can a classical document search system be extended into a document intelligence platform that retrieves evidence, builds citations, extracts relationships, and prepares for retrieval augmented generation?
-
-This repository separates AI retrieval from the Lucene infrastructure repo so each system has a clear responsibility.
-
-## 2. Current Capabilities
-
-| Capability | Implementation |
+| Layer | Implemented Capability |
 | :-- | :-- |
-| Document loading | Local text document loader |
-| Semantic chunking | Page aware and overlap aware chunker |
-| Embeddings | Deterministic local hash embedding model |
-| Foundation model abstraction | Swappable provider for embeddings, summarization, classification, and risk labeling |
-| Entity extraction | Rule based NER for compliance roles, controls, risks, artifacts, and AI governance terms |
-| Keyphrase extraction | Frequency based local keyphrase extraction |
-| Document classification | Local classifier for privacy, financial controls, security, vendor risk, and AI governance |
-| Risk labeling | Severity labels for low, medium, high, and critical compliance risk |
-| Relation extraction | Extracted relationships such as exception requires remediation |
-| Summarization | Local extractive summary fallback |
-| Lexical retrieval | BM25 style scoring over chunks |
-| Vector retrieval | Cosine similarity over local embeddings |
-| Hybrid retrieval | Weighted lexical and vector score fusion |
-| RAG answer | Evidence based answer builder with citations |
-| Knowledge graph | Rule based entity and relationship extraction |
-| Demo corpus | Compliance documents copied from the Lucene project |
-| Tests | Standard library unittest pipeline coverage |
+| Document ingestion | Loads compliance text documents from a local corpus |
+| Semantic chunking | Splits page aware text into overlapping retrieval units |
+| Foundation model interface | Defines embeddings, summarization, classification, keyphrase extraction, and risk labeling APIs |
+| Local model backend | Provides deterministic embeddings and NLP outputs without external services |
+| NLP enrichment | Extracts entities, keyphrases, document labels, risk labels, summaries, and relations |
+| Hybrid retrieval | Combines BM25 style lexical scoring with vector similarity |
+| RAG answer builder | Produces evidence based answers with chunk level citations |
+| Knowledge graph | Converts enriched chunks into entity and relationship triples |
+| Evaluation harness | Measures recall at K, citation hit rate, matched terms, and average score |
+| CI | Runs the test suite through GitHub Actions |
+
+## 2. Research Question
+
+The project answers this question:
+
+```text
+How can enterprise documents be transformed into semantic chunks, structured NLP signals, retrievable evidence, knowledge graph triples, and citation grounded answers using a foundation model ready architecture?
+```
 
 ## 3. Architecture
 
 ```text
-Documents
+Compliance Documents
+        |
+        v
+Document Loader
         |
         v
 Semantic Chunker
         |
         v
-NLP Enrichment
+NLP Enrichment Pipeline
+        |
+        +--> Entity Extraction
+        +--> Keyphrase Extraction
+        +--> Document Classification
+        +--> Risk Labeling
+        +--> Relation Extraction
+        +--> Summarization
         |
         v
-Entities, Keyphrases, Labels, Risks, Relations, Summaries
+Foundation Model Provider Interface
+        |
+        +--> Local deterministic backend
+        +--> Future OpenAI or Bedrock backend
+        +--> Future GPU transformer backend
         |
         v
-Foundation Model Interface
+Hybrid Retriever
         |
-        +-------------------+
-        |                   |
-        v                   v
-BM25 Scoring          Local Embeddings
-        |                   |
-        +---------+---------+
-                  |
-                  v
-           Hybrid Retrieval
-                  |
-                  v
-        Citation Answer Builder
-                  |
-                  v
-          RAG Style Response
+        +--> BM25 style lexical score
+        +--> Vector cosine score
+        |
+        v
+Citation Grounded Answer
 ```
 
-The knowledge graph path runs beside retrieval:
+Knowledge graph construction runs in parallel:
 
 ```text
-Chunks
-   |
-   v
-Entity Extraction
-   |
-   v
-Relationship Extraction
-   |
-   v
+Enriched Chunks
+        |
+        v
+Entity and Relation Projection
+        |
+        v
 Knowledge Graph Triples
 ```
 
-## 4. Run the Demo
+## 4. Verified Demo Output
+
+Running the demo over the compliance corpus produces:
+
+```text
+documents: 5
+chunks: 305
+enriched_chunks: 305
+knowledge_graph_triples: 3976
+entities: 2566
+relations: 800
+```
+
+The RAG style answer returns citations with:
+
+```text
+chunk_id
+document title
+source URI
+page number
+retrieval score
+```
+
+The NLP enrichment sample includes:
+
+```text
+document_label
+risk_label
+summary
+entities
+keyphrases
+relations
+```
+
+## 5. Run The Project
 
 ```bash
-cd /Users/srimathiravisankar/ai-rag-docsearch-knowledge-engine
+cd /Users/srimathiravisankar/nlp-doc-indexing
+PYTHONPATH=src python3 scripts/demo.py
+```
+
+Or:
+
+```bash
+cd /Users/srimathiravisankar/nlp-doc-indexing
 chmod +x scripts/demo.sh
 ./scripts/demo.sh
 ```
 
-The demo indexes the compliance corpus, retrieves evidence for a compliance question, returns citations, and prints sample knowledge graph triples.
-
-## 5. Run Tests
+## 6. Run The Evaluation Harness
 
 ```bash
-cd /Users/srimathiravisankar/ai-rag-docsearch-knowledge-engine
+cd /Users/srimathiravisankar/nlp-doc-indexing
+PYTHONPATH=src python3 scripts/evaluate.py
+```
+
+The evaluator reads curated questions from:
+
+```text
+data/evaluation/compliance_questions.json
+```
+
+It reports:
+
+| Metric | Meaning |
+| :-- | :-- |
+| `recall_at_k` | Whether expected terms appeared in retrieved evidence |
+| `citation_hit_rate` | Whether returned citations came from the expected document |
+| `average_score` | Mean hybrid retrieval score across evidence |
+| `matched_terms` | Expected terms found in retrieved chunks |
+
+Verified local evaluation:
+
+```text
+questions: 4
+recall_at_k: 1.0
+citation_hit_rate: 1.0
+average_score: 4.6411
+```
+
+## 7. Run Tests
+
+```bash
+cd /Users/srimathiravisankar/nlp-doc-indexing
 PYTHONPATH=src python3 -m unittest discover -s tests
 ```
 
-## 6. Core Modules
+Verified locally:
 
-| Path | Role |
+```text
+Ran 1 test
+OK
+```
+
+## 8. Core Modules
+
+| Module | Responsibility |
 | :-- | :-- |
-| `SemanticChunker` | Splits documents into page aware overlapping chunks |
-| `FoundationModelProvider` | Defines model backed embedding, classification, keyphrase, summary, and risk APIs |
-| `LocalFoundationModelProvider` | Deterministic local fallback for tests and demos |
-| `NLPEnrichmentPipeline` | Runs entity extraction, keyphrase extraction, classification, risk labeling, relation extraction, and summarization |
-| `EntityExtractor` | Extracts compliance and AI governance entities |
-| `RelationExtractor` | Extracts domain relationships from enriched chunks |
-| `LocalHashEmbeddingModel` | Provides deterministic local vectors for reproducible demos |
-| `HybridRetriever` | Combines BM25 style scoring with vector similarity |
-| `KnowledgeGraphExtractor` | Extracts entity relationship triples from chunks |
-| `CitationAnswerBuilder` | Builds answer payloads with chunk level citations |
-| `DocumentIntelligencePipeline` | Orchestrates loading, chunking, indexing, graph extraction, retrieval, and answer generation |
+| `aidoc.chunking.SemanticChunker` | Page aware overlapping chunk generation |
+| `aidoc.foundation.FoundationModelProvider` | Model backend abstraction |
+| `aidoc.foundation.LocalFoundationModelProvider` | Local deterministic model backend |
+| `aidoc.nlp.NLPEnrichmentPipeline` | Entity, keyphrase, label, risk, relation, and summary generation |
+| `aidoc.retrieval.HybridRetriever` | BM25 style and vector retrieval fusion |
+| `aidoc.kg.EnrichedKnowledgeGraphExtractor` | Knowledge graph triple construction |
+| `aidoc.rag.CitationAnswerBuilder` | Citation grounded answer construction |
+| `aidoc.evaluation.RetrievalEvaluator` | Retrieval and citation quality evaluation |
 
-## 7. GPU Roadmap
+## 9. Foundation Model Design
 
-GPU acceleration belongs in the model inference path, not in the classical Lucene inverted index. This repository is the correct place to add it.
+The project uses a provider interface instead of hard coding one vendor. The current local backend implements the same tasks expected from a production foundation model system:
 
-GPU suitable additions:
+| Task | Local Implementation | Production Replacement |
+| :-- | :-- | :-- |
+| Embeddings | Hash based dense vector | OpenAI, Bedrock, sentence transformers |
+| Summarization | Extractive summary | Instruction tuned LLM |
+| Classification | Domain keyword classifier | Fine tuned transformer classifier |
+| Risk labeling | Pattern based severity model | Compliance risk classifier |
+| Keyphrases | Frequency based phrases | LLM or embedding based extraction |
+| Entity extraction | Domain pattern NER | Transformer token classifier |
+| Relation extraction | Rule based relations | LLM or supervised relation extractor |
 
-| Component | GPU Value |
+This makes the repo credible as a foundation model system while remaining fully runnable in a local academic environment.
+
+## 10. GPU Story
+
+GPU acceleration belongs in the model inference layer. It is not needed for the deterministic local fallback, but the architecture is ready for GPU backed upgrades:
+
+| GPU Component | Role |
 | :-- | :-- |
-| Embedding generation | Transformer inference can be batched across chunks |
-| OCR for scanned PDFs | Vision text recognition benefits from parallel computation |
-| Cross encoder reranking | Query chunk pairs can be scored in batches |
-| Entity extraction | Token classification can run on GPU |
-| Summarization | Long document summarization uses transformer decoding |
+| Embedding worker | Batch transformer embedding generation |
+| Reranker | Cross encoder scoring of query and chunk pairs |
+| OCR worker | Scanned PDF and image text extraction |
+| NER model | Token classification over document chunks |
+| Summarization model | Long context summary generation |
+| Local LLM server | RAG answer generation through vLLM or Ollama |
 
-The future production path should replace `LocalHashEmbeddingModel` with one of the following:
-
-1. A local sentence transformer running on GPU
-2. Amazon Bedrock embeddings
-3. OpenAI embeddings
-4. A managed vector search and reranking service
-
-## 8. Foundation Model Roadmap
-
-The local provider is intentionally deterministic. A 2026 production version should add provider implementations for:
-
-| Provider | Use |
-| :-- | :-- |
-| Hugging Face sentence transformers | Local embedding generation and reranking |
-| OpenAI embeddings and responses | Managed embeddings, summarization, and grounded answer generation |
-| Amazon Bedrock | Enterprise managed embeddings and LLM inference |
-| vLLM or Ollama | GPU backed local LLM serving |
-| Cross encoder reranker | More accurate evidence ordering after retrieval |
-
-The recommended model pipeline is:
+Recommended production path:
 
 ```text
 chunks
    |
    v
-embedding model
+GPU embedding worker
    |
    v
-vector retrieval
+vector index
    |
    v
-cross encoder reranker
+hybrid retrieval
    |
    v
-grounded answer model
+GPU reranker
    |
    v
-verifier requiring citations
+LLM answer generator
+   |
+   v
+citation verifier
 ```
 
-## 9. Relationship To The Lucene Repository
+## 11. Relationship To The Lucene Project
 
-The Lucene repository answers:
+The Lucene project answers:
 
 ```text
-How do we index and search documents at scale using traditional IR?
+How do we index and search documents at scale using traditional information retrieval?
 ```
 
-This repository answers:
+This project answers:
 
 ```text
-How do we understand, retrieve, cite, and reason over those documents?
+How do we understand, enrich, retrieve, cite, and reason over those documents using NLP and foundation model concepts?
 ```
 
-Together they form a complete document intelligence platform:
+Together:
 
 ```text
-Lucene Search Infrastructure
+Lucene Scalable DocSearch Index Engine
         +
-AI RAG Knowledge Engine
+NLP DOC Indexing
         =
-Scalable Enterprise Document Intelligence
+Scalable Enterprise Document Intelligence Platform
 ```
+
+## 12. Project Status
+
+The current repository is complete as a local, testable masters level prototype. It includes implemented code, sample data, a demo, tests, a CI workflow, a system design document, a model abstraction layer, NLP enrichment, hybrid retrieval, knowledge graph construction, RAG style answers, and an evaluation harness.
+
+Future work should focus on replacing local deterministic models with production model backends rather than changing the architecture.

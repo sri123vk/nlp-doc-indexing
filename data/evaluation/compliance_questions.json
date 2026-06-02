@@ -1,0 +1,22 @@
+[
+  {
+    "question": "Which policy evidence mentions remediation and executive acknowledgement?",
+    "expected_terms": ["remediation", "executive acknowledgement"],
+    "expected_document_hint": "financial-controls-sox-policy"
+  },
+  {
+    "question": "Where are consent management and data subject access requests discussed?",
+    "expected_terms": ["consent management", "data subject access"],
+    "expected_document_hint": "data-privacy-compliance-manual"
+  },
+  {
+    "question": "Which AI governance document discusses model change approval?",
+    "expected_terms": ["model change approval", "AI system"],
+    "expected_document_hint": "ai-governance-model-risk-policy"
+  },
+  {
+    "question": "Which vendor policy discusses termination and data return?",
+    "expected_terms": ["termination", "data return", "vendor"],
+    "expected_document_hint": "vendor-risk-management-handbook"
+  }
+]
