@@ -15,7 +15,9 @@ The project is no longer only a RAG sketch. It now contains a complete local doc
 | Foundation model interface | Defines embeddings, summarization, classification, keyphrase extraction, and risk labeling APIs |
 | Local model backend | Provides deterministic embeddings and NLP outputs without external services |
 | NLP enrichment | Extracts entities, keyphrases, document labels, risk labels, summaries, and relations |
+| Query understanding | Tags intent, entities, keyphrases, and simple POS categories |
 | Hybrid retrieval | Combines BM25 style lexical scoring with vector similarity |
+| Query reranking | Reorders evidence using query and enrichment signals |
 | RAG answer builder | Produces evidence based answers with chunk level citations |
 | Knowledge graph | Converts enriched chunks into entity and relationship triples |
 | Evaluation harness | Measures recall at K, citation hit rate, matched terms, and average score |
@@ -49,6 +51,9 @@ NLP Enrichment Pipeline
         +--> Risk Labeling
         +--> Relation Extraction
         +--> Summarization
+        |
+        v
+Query Understanding
         |
         v
 Foundation Model Provider Interface
@@ -111,6 +116,16 @@ summary
 entities
 keyphrases
 relations
+```
+
+The query understanding layer adds:
+
+```text
+intent
+domain hint
+simple POS tags
+query entities
+query keyphrases
 ```
 
 ## 5. Run The Project
@@ -181,7 +196,9 @@ OK
 | `aidoc.foundation.FoundationModelProvider` | Model backend abstraction |
 | `aidoc.foundation.LocalFoundationModelProvider` | Local deterministic model backend |
 | `aidoc.nlp.NLPEnrichmentPipeline` | Entity, keyphrase, label, risk, relation, and summary generation |
+| `aidoc.nlp.QueryUnderstanding` | Query intent, entity, keyphrase, and POS tagging |
 | `aidoc.retrieval.HybridRetriever` | BM25 style and vector retrieval fusion |
+| `aidoc.reranking.QueryAwareReranker` | Query aware evidence reranking |
 | `aidoc.kg.EnrichedKnowledgeGraphExtractor` | Knowledge graph triple construction |
 | `aidoc.rag.CitationAnswerBuilder` | Citation grounded answer construction |
 | `aidoc.evaluation.RetrievalEvaluator` | Retrieval and citation quality evaluation |
@@ -202,7 +219,27 @@ The project uses a provider interface instead of hard coding one vendor. The cur
 
 This makes the repo credible as a foundation model system while remaining fully runnable in a local academic environment.
 
-## 10. GPU Story
+## 10. Query Understanding And Reranking
+
+The repository includes a query understanding layer that extracts:
+
+1. Query intent
+2. Query entities
+3. Query keyphrases
+4. Simple POS tags
+5. Domain hints for privacy, financial controls, security, vendor risk, and AI governance
+
+The reranker then reorders candidate chunks using:
+
+1. Lexical overlap with the query
+2. Entity label alignment
+3. Keyphrase overlap
+4. Domain label agreement
+5. Risk label awareness when the query is about risk
+
+This is the right insertion point for a future transformer reranker or cross encoder.
+
+## 11. GPU Story
 
 GPU acceleration belongs in the model inference layer. It is not needed for the deterministic local fallback, but the architecture is ready for GPU backed upgrades:
 
@@ -239,7 +276,7 @@ LLM answer generator
 citation verifier
 ```
 
-## 11. Relationship To The Lucene Project
+## 12. Relationship To The Lucene Project
 
 The Lucene project answers:
 
@@ -263,8 +300,8 @@ NLP DOC Indexing
 Scalable Enterprise Document Intelligence Platform
 ```
 
-## 12. Project Status
+## 13. Project Status
 
-The current repository is complete as a local, testable masters level prototype. It includes implemented code, sample data, a demo, tests, a CI workflow, a system design document, a model abstraction layer, NLP enrichment, hybrid retrieval, knowledge graph construction, RAG style answers, and an evaluation harness.
+The current repository is complete as a local, testable masters level prototype. It includes implemented code, sample data, a demo, tests, a CI workflow, a system design document, a model abstraction layer, NLP enrichment, query understanding, reranking, hybrid retrieval, knowledge graph construction, RAG style answers, and an evaluation harness.
 
 Future work should focus on replacing local deterministic models with production model backends rather than changing the architecture.

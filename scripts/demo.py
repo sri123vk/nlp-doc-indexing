@@ -30,6 +30,18 @@ def main() -> None:
         "relations": [relation.__dict__ for relation in sample.relations[:8]],
     }, indent=2))
     print()
+    print("Query understanding sample")
+    analysis = pipeline.query_understanding.analyze("Which vendor policy discusses termination and data return?")
+    print(json.dumps({
+        "query": analysis.query,
+        "normalized_query": analysis.normalized_query,
+        "intent": analysis.intent,
+        "domain_hint": analysis.domain_hint,
+        "tokens": [token.__dict__ for token in analysis.tokens],
+        "entities": [entity.__dict__ for entity in analysis.entities],
+        "keyphrases": [phrase.__dict__ for phrase in analysis.keyphrases],
+    }, indent=2))
+    print()
     print("Knowledge graph sample")
     print(json.dumps([triple.__dict__ for triple in pipeline.triples[:8]], indent=2))
 

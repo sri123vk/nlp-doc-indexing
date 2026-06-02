@@ -7,7 +7,9 @@ from aidoc.foundation.model_provider import FoundationModelProvider, LocalFounda
 from aidoc.io.local_loader import load_text_documents
 from aidoc.kg.knowledge_graph import EnrichedKnowledgeGraphExtractor
 from aidoc.nlp.enrichment import NLPEnrichmentPipeline
+from aidoc.nlp.query_understanding import QueryUnderstanding
 from aidoc.rag.answer_builder import CitationAnswerBuilder
+from aidoc.reranking.query_reranker import QueryAwareReranker
 from aidoc.retrieval.hybrid_retriever import HybridRetriever
 
 
@@ -17,6 +19,8 @@ class DocumentIntelligencePipeline:
         self.chunker = SemanticChunker()
         self.retriever = HybridRetriever(self.model_provider)
         self.enrichment_pipeline = NLPEnrichmentPipeline(self.model_provider)
+        self.query_understanding = QueryUnderstanding()
+        self.reranker = QueryAwareReranker()
         self.graph_extractor = EnrichedKnowledgeGraphExtractor()
         self.answer_builder = CitationAnswerBuilder()
         self.chunks = []
@@ -39,5 +43,7 @@ class DocumentIntelligencePipeline:
         }
 
     def ask(self, question: str, limit: int = 5) -> dict[str, object]:
-        evidence = self.retriever.search(question, limit=limit)
+        query_analysis = self.query_understanding.analyze(question)
+        evidence = self.retriever.search(query_analysis.normalized_query, limit=max(10, limit * 2))
+        evidence = self.reranker.rerank(query_analysis, evidence, self.enrichments)[:limit]
         return self.answer_builder.build(question, evidence)

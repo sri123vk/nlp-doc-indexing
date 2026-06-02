@@ -26,7 +26,7 @@ class CitationAnswerBuilder:
                 "title": hit.chunk.title,
                 "source_uri": hit.chunk.source_uri,
                 "page": hit.chunk.page,
-                "score": round(hit.final_score, 4),
+                "score": round(hit.rerank_score if hit.rerank_score else hit.final_score, 4),
             }
             for hit in top
         ]
@@ -36,4 +36,3 @@ class CitationAnswerBuilder:
             "answer": " ".join(answer_sentences),
             "citations": citations,
         }
-

@@ -12,15 +12,17 @@ This repository is the AI intelligence layer. It assumes raw text is available f
 | Chunker | Preserves page level context and creates retrievable units |
 | Foundation model provider | Abstracts embeddings, summarization, classification, keyphrases, and risk labeling |
 | NLP enrichment pipeline | Extracts entities, keyphrases, document labels, risk labels, summaries, and relations |
+| Query understanding | Extracts query intent, entities, keyphrases, and simple POS tags |
 | Embedding model | Converts chunk text into vectors |
 | Hybrid retriever | Combines lexical and semantic evidence |
+| Query reranker | Reorders evidence using query and enrichment signals |
 | Knowledge graph extractor | Converts unstructured text into relationship triples |
 | Answer builder | Produces responses with citations |
 | Evaluation harness | Measures retrieval recall, citation hit rate, matched terms, and average score |
 
 ## Implemented Local Prototype
 
-The local prototype includes document loading, semantic chunking, deterministic foundation model fallback, NLP enrichment, hybrid retrieval, citation answer generation, knowledge graph triple extraction, and evaluation.
+The local prototype includes document loading, semantic chunking, deterministic foundation model fallback, NLP enrichment, query understanding, reranking, hybrid retrieval, citation answer generation, knowledge graph triple extraction, and evaluation.
 
 Verified corpus output:
 

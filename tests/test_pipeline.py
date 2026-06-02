@@ -33,6 +33,11 @@ class PipelineTest(unittest.TestCase):
             self.assertTrue(answer["citations"])
             self.assertIn("remediation", answer["answer"].lower())
 
+            analysis = pipeline.query_understanding.analyze("Which vendor policy discusses termination and data return?")
+            self.assertEqual(analysis.intent, "retrieval")
+            self.assertEqual(analysis.domain_hint, "vendor_risk")
+            self.assertTrue(any(token.pos == "NOUN" for token in analysis.tokens))
+
             evaluation = RetrievalEvaluator(pipeline).evaluate([
                 EvaluationQuestion(
                     question="What requires remediation?",

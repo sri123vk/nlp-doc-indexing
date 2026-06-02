@@ -71,11 +71,30 @@ class ChunkEnrichment:
 
 
 @dataclass(frozen=True)
+class QueryToken:
+    text: str
+    pos: str
+    entity_label: str | None = None
+
+
+@dataclass(frozen=True)
+class QueryAnalysis:
+    query: str
+    normalized_query: str
+    tokens: list[QueryToken]
+    entities: list[Entity]
+    keyphrases: list[Keyphrase]
+    intent: str
+    domain_hint: str
+
+
+@dataclass(frozen=True)
 class RetrievedChunk:
     chunk: Chunk
     lexical_score: float
     vector_score: float
     final_score: float
+    rerank_score: float = 0.0
 
 
 @dataclass(frozen=True)
